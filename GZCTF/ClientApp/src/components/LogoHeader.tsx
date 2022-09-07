@@ -26,7 +26,8 @@ export const LogoHeader = forwardRef<HTMLDivElement, GroupProps>((props, ref) =>
       <MainIcon style={{ maxWidth: 60, height: 'auto' }} />
       <Title className={classes.title}>
         {config?.title ?? 'GZ'}
-        <span className={classes.brand}>::</span>CTF
+        {/*<span className={classes.brand}>::</span>CTF*/}
+        CTF
       </Title>
     </Group>
   )
