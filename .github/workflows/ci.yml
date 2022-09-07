@@ -64,13 +64,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-    
-      - name: Login to Aliyun Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: registry.cn-shanghai.aliyuncs.com
-          username: idawnlight
-          password: ${{ secrets.ALIYUN_CONTAINER_SECRET }}
 
       - name: Docker Metadata action
         uses: docker/metadata-action@v4.0.1
@@ -78,7 +71,6 @@ jobs:
         with:
           images: |
             ghcr.io/${{ github.actor }}/gzctf
-            registry.cn-shanghai.aliyuncs.com/${{ secrets.ALIYUN_CONTAINER_NAME }}
           tags: |
             latest
             type=ref,event=branch
