@@ -127,7 +127,7 @@ const UserEditModal: FC<UserEditModalProps> = (props) => {
             onChange={(event) => setProfile({ ...profile, phone: event.target.value })}
           />
           <TextInput
-            label="学工号"
+            label="一卡通号"
             type="number"
             style={{ width: '100%' }}
             value={profile.stdNumber ?? ''}

@@ -4,6 +4,7 @@ import { Button, Modal, ModalProps, Select, Stack, TextInput } from '@mantine/co
 import { showNotification } from '@mantine/notifications'
 import { mdiClose } from '@mdi/js'
 import { Icon } from '@mdi/react'
+import { useUser } from '@Utils/useUser'
 import api, { GameJoinModel } from '@Api'
 
 interface GameJoinModalProps extends ModalProps {
@@ -23,6 +24,7 @@ const GameJoinModal: FC<GameJoinModalProps> = (props) => {
   const [inviteCode, setInviteCode] = useState('')
   const [organization, setOrganization] = useState('')
   const [disabled, setDisabled] = useState(false)
+  const { user, error } = useUser()
 
   return (
     <Modal {...modalProps}>
