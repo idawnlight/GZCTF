@@ -102,8 +102,33 @@ public class GameController : ControllerBase
 
         var count = await participationRepository.GetParticipationCount(context.Game, token);
 
-        return Ok(GameDetailModel.FromGame(context.Game, count)
-                      .WithParticipation(context.Participation));
+        var model = GameDetailModel.FromGame(context.Game, count)
+                      .WithParticipation(context.Participation);
+
+        var susSign = model.Organizations?.SingleOrDefault(r => r == "__sus");
+        if (susSign is not null)
+        {
+            model.Organizations?.Remove(susSign);
+            
+            var user = await userManager.GetUserAsync(User);
+            if (user is not null)
+            {
+                model.Organizations = new List<string>();
+                
+                if (user?.StdNumber is null || user.StdNumber == "")
+                {
+                    model.Organizations.Add("校外");
+                }
+                else
+                {
+                    // TODO: Regex for StdNumber
+                    model.Organizations = new List<string>();
+                    model.Organizations.Add("本科生");
+                }
+            }
+        }
+
+        return Ok(model);
     }
 
     /// <summary>
@@ -202,6 +227,12 @@ public class GameController : ControllerBase
 
         if (DateTimeOffset.UtcNow < game.StartTimeUTC)
             return BadRequest(new RequestResponse("比赛还未开始"));
+        
+        var susSign = game.Organizations?.SingleOrDefault(r => r == "__sus");
+        if (susSign is not null)
+        {
+            game.Organizations?.Remove(susSign);
+        }
 
         return Ok(await gameRepository.GetScoreboard(game, token));
     }
