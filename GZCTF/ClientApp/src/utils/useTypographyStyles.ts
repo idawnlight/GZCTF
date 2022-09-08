@@ -1,7 +1,7 @@
 import { createStyles } from '@mantine/core'
 
 export const useTypographyStyles = createStyles((theme) => {
-  const sc = (dark: string, light: string) => (theme.colorScheme === 'dark' ? dark : light)
+  const sc = (dark: any, light: any) => (theme.colorScheme === 'dark' ? dark : light)
   const cs = theme.colors
 
   return {
@@ -20,13 +20,13 @@ export const useTypographyStyles = createStyles((theme) => {
 
         [theme.fn.smallerThan('xs')]: {
           paddingLeft: theme.fontSizes.xs * 1.5,
-        }
+        },
       },
 
       '& :not(pre) > code': {
         whiteSpace: 'normal',
         fontSize: '1em',
-        backgroundColor: sc(cs.dark[6], cs.white[3]),
+        backgroundColor: theme.fn.rgba(theme.black, sc(0.1, 0.05)),
         padding: `1px ${theme.spacing.xs / 2}px`,
         border: 'none',
       },

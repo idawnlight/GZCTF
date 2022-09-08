@@ -20,6 +20,7 @@ import {
   mdiArrowLeftBold,
   mdiArrowRightBold,
   mdiCheck,
+  mdiDeleteOutline,
   mdiLockReset,
   mdiMagnify,
   mdiPencilOutline,
@@ -36,6 +37,7 @@ const ITEM_COUNT_PER_PAGE = 30
 
 const Users: FC = () => {
   const [page, setPage] = useState(1)
+  const [update, setUpdate] = useState(new Date())
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [activeUser, setActiveUser] = useState<UserInfoModel>({})
   const [users, setUsers] = useState<UserInfoModel[]>()
@@ -56,7 +58,7 @@ const Users: FC = () => {
       .then((res) => {
         setUsers(res.data)
       })
-  }, [page])
+  }, [page, update])
 
   const onSearch = () => {
     if (!hint) {
@@ -159,6 +161,27 @@ const Users: FC = () => {
     }
   }
 
+  const onDelete = async (user: UserInfoModel) => {
+    try {
+      setDisabled(true)
+      if (!user.id) return
+
+      await api.admin.adminDeleteUser(user.id)
+      showNotification({
+        message: `${user.userName} 已删除`,
+        color: 'teal',
+        icon: <Icon path={mdiCheck} size={1} />,
+        disallowClose: true,
+      })
+      setUsers(users?.filter((x) => x.id !== user.id))
+      setUpdate(new Date())
+    } catch (e: any) {
+      showErrorNotification(e)
+    } finally {
+      setDisabled(false)
+    }
+  }
+
   return (
     <AdminPage
       isLoading={searching || !users}
@@ -200,7 +223,7 @@ const Users: FC = () => {
                 <th>用户 IP</th>
                 <th>真实姓名</th>
                 <th>学号</th>
-                <th>操作</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -247,8 +270,8 @@ const Users: FC = () => {
                         {!user.stdNumber ? '00000000' : user.stdNumber}
                       </Text>
                     </td>
-                    <td>
-                      <Group noWrap spacing="sm">
+                    <td align="right">
+                      <Group noWrap spacing="sm" position="right">
                         <ActionIcon
                           color="blue"
                           onClick={() => {
@@ -264,6 +287,13 @@ const Users: FC = () => {
                           message={`确定要重置 “${user.userName}” 的密码吗？`}
                           disabled={disabled}
                           onClick={() => onResetPassword(user)}
+                        />
+                        <ActionIconWithConfirm
+                          iconPath={mdiDeleteOutline}
+                          color="alert"
+                          message={`确定要删除 “${user.userName}” 吗？`}
+                          disabled={disabled}
+                          onClick={() => onDelete(user)}
                         />
                       </Group>
                     </td>

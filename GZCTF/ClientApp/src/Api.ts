@@ -212,18 +212,6 @@ export interface ProfileUserInfoModel {
   /** 头像链接 */
   avatar?: string | null
 
-  /**
-   * 当前队伍
-   * @format int32
-   */
-  activeTeamId?: number | null
-
-  /**
-   * 当前所有队伍
-   * @format int32
-   */
-  ownTeamId?: number | null
-
   /** 用户角色 */
   role?: Role | null
 }
@@ -322,18 +310,6 @@ export interface UserInfoModel {
 
   /** 用户是否通过邮箱验证（可登录） */
   emailConfirmed?: boolean | null
-
-  /** 所拥有的队伍 */
-  ownTeamName?: string | null
-
-  /** @format int32 */
-  ownTeamId?: number | null
-
-  /** 激活的队伍 */
-  activeTeamName?: string | null
-
-  /** @format int32 */
-  activeTeamId?: number | null
 }
 
 /**
@@ -1038,6 +1014,9 @@ export interface GameDetailModel {
    */
   teamCount?: number
 
+  /** 参赛队伍名称 */
+  teamName?: string | null
+
   /** 队伍参与状态 */
   status?: ParticipationStatus
 
@@ -1055,6 +1034,12 @@ export interface GameDetailModel {
 }
 
 export interface GameJoinModel {
+  /**
+   * 参赛队伍 Id
+   * @format int32
+   */
+  teamId?: number
+
   /** 参赛单位 */
   organization?: string | null
 
@@ -1315,9 +1300,6 @@ export interface GameTeamDetailModel {
  * 比赛参与对象，用于审核查看（Admin）
  */
 export interface ParticipationInfoModel {
-  /** 参赛所属组织 */
-  organization?: string | null
-
   /**
    * 参与对象 Id
    * @format int32
@@ -1326,6 +1308,12 @@ export interface ParticipationInfoModel {
 
   /** 参与队伍 */
   team?: TeamWithDetailedUserInfo
+
+  /** 注册的成员 */
+  registeredMembers?: string[]
+
+  /** 参赛所属组织 */
+  organization?: string | null
 
   /** 参与状态 */
   status?: ParticipationStatus
@@ -1461,6 +1449,11 @@ export interface TeamUpdateModel {
 
   /** 队伍签名 */
   bio?: string | null
+}
+
+export interface TeamTransferModel {
+  /** 新队长 Id */
+  newCaptainId: string
 }
 
 export type QueryParamsType = Record<string | number, any>
@@ -2047,6 +2040,22 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description 使用此接口删除用户，需要Admin权限
+     *
+     * @tags Admin
+     * @name AdminDeleteUser
+     * @summary 删除用户
+     * @request DELETE:/api/admin/users/{userid}
+     */
+    adminDeleteUser: (userid: string, params: RequestParams = {}) =>
+      this.request<string, RequestResponse>({
+        path: `/api/admin/users/${userid}`,
+        method: 'DELETE',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
      * @description 使用此接口获取用户信息，需要Admin权限
      *
      * @tags Admin
@@ -2100,6 +2109,22 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     adminResetPassword: (userid: string, params: RequestParams = {}) =>
       this.request<string, RequestResponse>({
         path: `/api/admin/users/${userid}/password`,
+        method: 'DELETE',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * @description 使用此接口删除队伍，需要Admin权限
+     *
+     * @tags Admin
+     * @name AdminDeleteTeam
+     * @summary 删除队伍
+     * @request DELETE:/api/admin/teams/{id}
+     */
+    adminDeleteTeam: (id: number, params: RequestParams = {}) =>
+      this.request<string, RequestResponse>({
+        path: `/api/admin/teams/${id}`,
         method: 'DELETE',
         format: 'json',
         ...params,
@@ -2908,7 +2933,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     ) => mutate<GameDetailModel>(`/api/game/${id}`, data, options),
 
     /**
-     * @description 加入一场比赛，需要User权限，需要当前激活队伍的队长权限
+     * @description 加入一场比赛，需要User权限
      *
      * @tags Game
      * @name GameJoinGame
@@ -3800,17 +3825,19 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description 设置队伍为当前激活队伍接口，需要为用户
+     * @description 移交队伍所有权接口，需要为队伍创建者
      *
      * @tags Team
-     * @name TeamSetActive
-     * @summary 设置队伍为当前激活队伍
-     * @request PUT:/api/team/{id}/setactive
+     * @name TeamTransfer
+     * @summary 移交队伍所有权
+     * @request PUT:/api/team/{id}/transfer
      */
-    teamSetActive: (id: number, params: RequestParams = {}) =>
+    teamTransfer: (id: number, data: TeamTransferModel, params: RequestParams = {}) =>
       this.request<TeamInfoModel, RequestResponse>({
-        path: `/api/team/${id}/setactive`,
+        path: `/api/team/${id}/transfer`,
         method: 'PUT',
+        body: data,
+        type: ContentType.Json,
         format: 'json',
         ...params,
       }),
