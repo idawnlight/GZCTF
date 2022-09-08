@@ -12,8 +12,6 @@ jobs:
     defaults:
       run:
         working-directory: GZCTF
-    permissions:
-      packages: write
 
     steps:
       - uses: actions/checkout@v3
@@ -70,7 +68,7 @@ jobs:
         id: meta
         with:
           images: |
-            ghcr.io/${{ github.actor }}/gzctf
+            ghcr.io/${{ github.actor }}/susctf
           tags: |
             latest
             type=ref,event=branch
