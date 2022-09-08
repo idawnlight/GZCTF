@@ -26,7 +26,6 @@ const GameJoinModal: FC<GameJoinModalProps> = (props) => {
   const [organization, setOrganization] = useState('')
   const [team, setTeam] = useState('')
   const [disabled, setDisabled] = useState(false)
-  const { user, error } = useUser()
 
   return (
     <Modal {...modalProps}>
