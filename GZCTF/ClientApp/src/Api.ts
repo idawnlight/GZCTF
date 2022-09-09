@@ -231,7 +231,7 @@ export enum Role {
  */
 export interface ConfigEditModel {
   /** 用户策略 */
-  accoutPolicy?: AccountPolicy | null
+  accountPolicy?: AccountPolicy | null
 
   /** 全局配置项 */
   globalConfig?: GlobalConfig | null
@@ -252,6 +252,9 @@ export interface AccountPolicy {
 
   /** 注册、更换邮箱、找回密码需要邮件确认 */
   emailConfirmationRequired?: boolean
+
+  /** 邮箱后缀域名，以逗号分割 */
+  emailDomainList?: string
 }
 
 /**

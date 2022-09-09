@@ -1,5 +1,6 @@
 using CTFServer.Models.Internal;
 using CTFServer.Services.Interface;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -9,21 +10,21 @@ using Xunit.Abstractions;
 
 namespace CTFServer.Test;
 
-public class ContainerServiceTest
+public class ContainerServiceTest : IClassFixture<TestWebAppFactory>
 {
-    private readonly IContainerService service;
+    private readonly TestWebAppFactory factory;
     private readonly ITestOutputHelper output;
 
-    public ContainerServiceTest(ITestOutputHelper _output)
+    public ContainerServiceTest(ITestOutputHelper _output, TestWebAppFactory _factory)
     {
-        var app = new TestWebAppFactory<Program>();
-        service = app.Services.GetRequiredService<IContainerService>();
+        factory = _factory;
         output = _output;
     }
 
     [Fact]
     public async void BasicInfo()
     {
+        var service = factory.Services.GetRequiredService<IContainerService>();
         var info = await service.GetHostInfo();
 
         output.WriteLine(info);
@@ -32,6 +33,7 @@ public class ContainerServiceTest
     [Fact]
     public async void CreateThenDestory()
     {
+        var service = factory.Services.GetRequiredService<IContainerService>();
         var config = new ContainerConfig()
         {
             Image = "ghcr.io/gztimewalker/gzctf/test",

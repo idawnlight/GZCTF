@@ -24,6 +24,11 @@ public class AccountPolicy
     /// 注册、更换邮箱、找回密码需要邮件确认
     /// </summary>
     public bool EmailConfirmationRequired { get; set; } = false;
+
+    /// <summary>
+    /// 邮箱后缀域名，以逗号分割
+    /// </summary>
+    public string EmailDomainList { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -40,7 +45,7 @@ public class GlobalConfig
 public class SmtpConfig
 {
     public string? Host { get; set; } = "127.0.0.1";
-    public ushort? Port { get; set; } = 587;
+    public int? Port { get; set; } = 587;
     public bool? EnableSsl { get; set; } = true;
 }
 
