@@ -846,7 +846,6 @@ export interface ChallengeUpdateModel {
 
   /**
    * Flag 模版，用于根据 Token 和题目、比赛信息生成 Flag
-   * @pattern .*(\[TEAM_HASH\])+.*
    */
   flagTemplate?: string | null
 
@@ -2974,6 +2973,21 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: 'POST',
         body: data,
         type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description 退出一场比赛，需要User权限
+     *
+     * @tags Game
+     * @name GameLeaveGame
+     * @summary 退出一个比赛
+     * @request DELETE:/api/game/{id}
+     */
+    gameLeaveGame: (id: number, params: RequestParams = {}) =>
+      this.request<void, RequestResponse>({
+        path: `/api/game/${id}`,
+        method: 'DELETE',
         ...params,
       }),
 

@@ -491,6 +491,11 @@ public class EditController : Controller
                 model.Hints.Count > 0 &&
                 model.Hints.GetSetHashCode() != res.Hints?.GetSetHashCode();
 
+        if (model.FlagTemplate is not null && res.Type == ChallengeType.DynamicContainer
+            && !model.FlagTemplate.Contains("[TEAM_HASH]")
+            && Codec.Leet.LeetEntropy(model.FlagTemplate) < 32.0)
+            return BadRequest(new RequestResponse("flag 复杂度不足，请考虑添加队伍哈希或增加长度"));
+
         res.Update(model);
 
         if (model.IsEnabled == true)
@@ -558,10 +563,13 @@ public class EditController : Controller
         if (challenge.ContainerImage is null || challenge.ContainerExposePort is null)
             return BadRequest(new RequestResponse("容器配置错误"));
 
+        var user = await userManager.GetUserAsync(User);
+
         var container = await containerService.CreateContainer(new()
         {
             CPUCount = challenge.CPUCount ?? 1,
-            TeamInfo = "AdminTest",
+            TeamId = "admin",
+            UserId = user.Id,
             Flag = challenge.Type.IsDynamic() ? "flag{GZCTF_dynamic_flag_test}" : null,
             Image = challenge.ContainerImage,
             MemoryLimit = challenge.MemoryLimit ?? 64,
