@@ -541,7 +541,7 @@ public class EditController : Controller
     /// <param name="id">比赛Id</param>
     /// <param name="cId">题目Id</param>
     /// <param name="token"></param>
-    /// <response code="200">成功添加比赛题目</response>
+    /// <response code="200">成功开启比赛题目容器</response>
     [HttpPost("Games/{id}/Challenges/{cId}/Container")]
     [ProducesResponseType(typeof(ContainerInfoModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status404NotFound)]
@@ -598,7 +598,7 @@ public class EditController : Controller
     [HttpDelete("Games/{id}/Challenges/{cId}/Container")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DestoryTestContainer([FromRoute] int id, [FromRoute] int cId, CancellationToken token)
+    public async Task<IActionResult> DestroyTestContainer([FromRoute] int id, [FromRoute] int cId, CancellationToken token)
     {
         var game = await gameRepository.GetGameById(id, token);
 
@@ -613,7 +613,7 @@ public class EditController : Controller
         if (challenge.TestContainer is null)
             return Ok();
 
-        await containerService.DestoryContainer(challenge.TestContainer, token);
+        await containerService.DestroyContainer(challenge.TestContainer, token);
         await containerRepository.RemoveContainer(challenge.TestContainer, token);
 
         return Ok();
