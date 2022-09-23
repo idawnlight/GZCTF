@@ -19,11 +19,13 @@ public class K8sService : IContainerService
     private readonly ILogger<K8sService> logger;
     private readonly Kubernetes kubernetesClient;
     private readonly string hostIP;
+    private readonly string publicEntry;
     private readonly string? SecretName;
 
-    public K8sService(IOptions<RegistryConfig> _registry, ILogger<K8sService> logger)
+    public K8sService(IOptions<RegistryConfig> _registry, IOptions<ContainerProvider> _provider, ILogger<K8sService> _logger)
     {
-        this.logger = logger;
+        logger = _logger;
+        publicEntry = _provider.Value.PublicEntry;
 
         if (!File.Exists("k8sconfig.yaml"))
         {
@@ -112,6 +114,10 @@ public class K8sService : IContainerService
                         Name = name,
                         Image = config.Image,
                         ImagePullPolicy = "Always",
+                        SecurityContext = new()
+                        {
+                            Privileged = config.PrivilegedContainer
+                        },
                         Env = config.Flag is null ? new List<V1EnvVar>() : new[]
                         {
                             new V1EnvVar("GZCTF_FLAG", config.Flag)
@@ -205,7 +211,8 @@ public class K8sService : IContainerService
         }
 
         container.PublicPort = service.Spec.Ports[0].NodePort;
-        container.PublicIP = hostIP;
+        container.IP = hostIP;
+        container.PublicIP = publicEntry;
         container.StartedAt = DateTimeOffset.UtcNow;
 
         return container;

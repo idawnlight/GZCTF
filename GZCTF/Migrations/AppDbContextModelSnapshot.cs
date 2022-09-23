@@ -17,7 +17,7 @@ namespace CTFServer.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.8")
+                .HasAnnotation("ProductVersion", "6.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -75,6 +75,9 @@ namespace CTFServer.Migrations
 
                     b.Property<int>("OriginalScore")
                         .HasColumnType("integer");
+
+                    b.Property<bool?>("PrivilegedContainer")
+                        .HasColumnType("boolean");
 
                     b.Property<int>("SubmissionCount")
                         .HasColumnType("integer");
@@ -250,7 +253,8 @@ namespace CTFServer.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PosterHash")
-                        .HasColumnType("text");
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<bool>("PracticeMode")
                         .HasColumnType("boolean");
@@ -379,9 +383,10 @@ namespace CTFServer.Migrations
                     b.HasIndex("ContainerId")
                         .IsUnique();
 
-                    b.HasIndex("FlagId");
+                    b.HasIndex("FlagId")
+                        .IsUnique();
 
-                    b.HasIndex("ParticipationId", "ChallengeId");
+                    b.HasIndex("ParticipationId");
 
                     b.ToTable("Instances");
                 });
@@ -591,11 +596,12 @@ namespace CTFServer.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AvatarHash")
-                        .HasColumnType("text");
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<string>("Bio")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                        .HasMaxLength(31)
+                        .HasColumnType("character varying(31)");
 
                     b.Property<string>("CaptainId")
                         .IsRequired()
@@ -610,8 +616,8 @@ namespace CTFServer.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)");
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)");
 
                     b.HasKey("Id");
 
@@ -629,12 +635,13 @@ namespace CTFServer.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("AvatarHash")
-                        .HasColumnType("text");
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<string>("Bio")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasMaxLength(63)
+                        .HasColumnType("character varying(63)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -682,8 +689,8 @@ namespace CTFServer.Migrations
 
                     b.Property<string>("RealName")
                         .IsRequired()
-                        .HasMaxLength(6)
-                        .HasColumnType("character varying(6)");
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)");
 
                     b.Property<DateTimeOffset>("RegisterTimeUTC")
                         .HasColumnType("timestamp with time zone");
@@ -696,8 +703,8 @@ namespace CTFServer.Migrations
 
                     b.Property<string>("StdNumber")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
+                        .HasMaxLength(31)
+                        .HasColumnType("character varying(31)");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
@@ -738,9 +745,29 @@ namespace CTFServer.Migrations
 
                     b.HasIndex("TeamId");
 
-                    b.HasIndex("UserId", "GameId");
+                    b.HasIndex("UserId", "GameId")
+                        .IsUnique();
 
                     b.ToTable("UserParticipations");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FriendlyName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Xml")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DataProtectionKeys");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

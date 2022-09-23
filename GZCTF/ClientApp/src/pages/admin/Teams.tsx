@@ -131,7 +131,7 @@ const Teams: FC = () => {
       }
     >
       <Paper shadow="md" p="md" style={{ width: '100%' }}>
-        <ScrollArea offsetScrollbars style={{ height: 'calc(100vh - 190px)' }}>
+        <ScrollArea offsetScrollbars scrollbarSize={4} style={{ height: 'calc(100vh - 190px)' }}>
           <Table className={classes.table}>
             <thead>
               <tr>
@@ -155,7 +155,7 @@ const Teams: FC = () => {
                         <Group position="apart">
                           <Group position="left">
                             <Avatar src={team.avatar} radius="xl">
-                              {team.name?.at(0)}
+                              {team.name?.slice(0, 1)}
                             </Avatar>
                             <Text lineClamp={1}>{team.name}</Text>
                           </Group>
@@ -187,6 +187,7 @@ const Teams: FC = () => {
                                   withArrow
                                   classNames={{
                                     tooltip: tooltipClasses.tooltip,
+                                    arrow: tooltipClasses.arrow,
                                   }}
                                 >
                                   <Avatar radius="xl" src={m.avatar} />

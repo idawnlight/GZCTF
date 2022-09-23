@@ -1,4 +1,5 @@
 ﻿using CTFServer.Models.Data;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -7,7 +8,7 @@ using System.Text.Json;
 
 namespace CTFServer.Models;
 
-public class AppDbContext : IdentityDbContext<UserInfo>
+public class AppDbContext : IdentityDbContext<UserInfo>, IDataProtectionKeyContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
@@ -29,6 +30,7 @@ public class AppDbContext : IdentityDbContext<UserInfo>
     public DbSet<Attachment> Attachments { get; set; } = default!;
     public DbSet<Config> Configs { get; set; } = default!;
     public DbSet<UserParticipation> UserParticipations { get; set; } = default!;
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -156,6 +158,24 @@ public class AppDbContext : IdentityDbContext<UserInfo>
                 );
         });
 
+        builder.Entity<Instance>(entity =>
+        {
+            entity.HasOne(e => e.FlagContext)
+                .WithMany()
+                .HasForeignKey(e => e.FlagId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Container)
+                .WithOne(e => e.Instance)
+                .HasForeignKey<Container>(e => e.InstanceId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            entity.Navigation(e => e.Container).AutoInclude();
+            entity.Navigation(e => e.Challenge).AutoInclude();
+
+            entity.HasIndex(e => e.FlagId).IsUnique();
+        });
+
         builder.Entity<UserParticipation>(entity =>
         {
             entity.HasOne(e => e.User)
@@ -172,25 +192,7 @@ public class AppDbContext : IdentityDbContext<UserInfo>
 
             entity.HasKey(e => new { e.GameId, e.TeamId, e.UserId });
 
-            entity.HasIndex(e => new { e.UserId, e.GameId });
-        });
-
-        builder.Entity<Instance>(entity =>
-        {
-            entity.HasOne(e => e.FlagContext)
-                .WithMany()
-                .HasForeignKey(e => e.FlagId)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            entity.HasOne(e => e.Container)
-                .WithOne(e => e.Instance)
-                .HasForeignKey<Container>(e => e.InstanceId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            entity.Navigation(e => e.Container).AutoInclude();
-            entity.Navigation(e => e.Challenge).AutoInclude();
-
-            entity.HasIndex(e => new { e.ParticipationId, e.ChallengeId });
+            entity.HasIndex(e => new { e.UserId, e.GameId }).IsUnique();
         });
 
         builder.Entity<Container>(entity =>

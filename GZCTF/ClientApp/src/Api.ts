@@ -659,6 +659,9 @@ export interface ChallengeEditDetailModel {
    */
   containerExposePort: number
 
+  /** 是否为特权容器 */
+  privilegedContainer?: boolean | null
+
   /**
    * 初始分数
    * @format int32
@@ -880,6 +883,9 @@ export interface ChallengeUpdateModel {
    */
   containerExposePort?: number | null
 
+  /** 是否为特权容器 */
+  privilegedContainer?: boolean | null
+
   /**
    * 初始分数
    * @format int32
@@ -986,7 +992,7 @@ export interface BasicGameInfoModel {
 /**
  * 比赛详细信息，包含详细介绍与当前队伍报名状态
  */
-export interface GameDetailModel {
+export interface DetailedGameInfoModel {
   /** @format int32 */
   id?: number
 
@@ -1303,7 +1309,10 @@ export enum AnswerResult {
   CheatDetected = 'CheatDetected',
 }
 
-export interface GameTeamDetailModel {
+export interface GameDetailModel {
+  /** 题目信息 */
+  challenges?: Record<string, ChallengeInfo[]>
+
   /** 积分榜信息 */
   rank?: ScoreboardItem | null
 
@@ -2932,7 +2941,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/api/game/{id}
      */
     gameGames: (id: number, params: RequestParams = {}) =>
-      this.request<GameDetailModel, RequestResponse>({
+      this.request<DetailedGameInfoModel, RequestResponse>({
         path: `/api/game/${id}`,
         method: 'GET',
         format: 'json',
@@ -2947,7 +2956,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/api/game/{id}
      */
     useGameGames: (id: number, options?: SWRConfiguration, doFetch: boolean = true) =>
-      useSWR<GameDetailModel, RequestResponse>(doFetch ? `/api/game/${id}` : null, options),
+      useSWR<DetailedGameInfoModel, RequestResponse>(doFetch ? `/api/game/${id}` : null, options),
 
     /**
      * @description 获取比赛的详细信息
@@ -2959,9 +2968,9 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      */
     mutateGameGames: (
       id: number,
-      data?: GameDetailModel | Promise<GameDetailModel>,
+      data?: DetailedGameInfoModel | Promise<DetailedGameInfoModel>,
       options?: MutatorOptions
-    ) => mutate<GameDetailModel>(`/api/game/${id}`, data, options),
+    ) => mutate<DetailedGameInfoModel>(`/api/game/${id}`, data, options),
 
     /**
      * @description 加入一场比赛，需要User权限
@@ -3204,13 +3213,13 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @description 获取比赛的全部题目，需要User权限，需要当前激活队伍已经报名
      *
      * @tags Game
-     * @name GameChallenges
-     * @summary 获取全部比赛题目信息
-     * @request GET:/api/game/{id}/challenges
+     * @name GameChallengesWithTeamInfo
+     * @summary 获取全部比赛题目信息及当前队伍信息
+     * @request GET:/api/game/{id}/details
      */
-    gameChallenges: (id: number, params: RequestParams = {}) =>
-      this.request<Record<string, ChallengeInfo[]>, RequestResponse>({
-        path: `/api/game/${id}/challenges`,
+    gameChallengesWithTeamInfo: (id: number, params: RequestParams = {}) =>
+      this.request<GameDetailModel, RequestResponse>({
+        path: `/api/game/${id}/details`,
         method: 'GET',
         format: 'json',
         ...params,
@@ -3219,72 +3228,30 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @description 获取比赛的全部题目，需要User权限，需要当前激活队伍已经报名
      *
      * @tags Game
-     * @name GameChallenges
-     * @summary 获取全部比赛题目信息
-     * @request GET:/api/game/{id}/challenges
+     * @name GameChallengesWithTeamInfo
+     * @summary 获取全部比赛题目信息及当前队伍信息
+     * @request GET:/api/game/{id}/details
      */
-    useGameChallenges: (id: number, options?: SWRConfiguration, doFetch: boolean = true) =>
-      useSWR<Record<string, ChallengeInfo[]>, RequestResponse>(
-        doFetch ? `/api/game/${id}/challenges` : null,
-        options
-      ),
+    useGameChallengesWithTeamInfo: (
+      id: number,
+      options?: SWRConfiguration,
+      doFetch: boolean = true
+    ) =>
+      useSWR<GameDetailModel, RequestResponse>(doFetch ? `/api/game/${id}/details` : null, options),
 
     /**
      * @description 获取比赛的全部题目，需要User权限，需要当前激活队伍已经报名
      *
      * @tags Game
-     * @name GameChallenges
-     * @summary 获取全部比赛题目信息
-     * @request GET:/api/game/{id}/challenges
+     * @name GameChallengesWithTeamInfo
+     * @summary 获取全部比赛题目信息及当前队伍信息
+     * @request GET:/api/game/{id}/details
      */
-    mutateGameChallenges: (
+    mutateGameChallengesWithTeamInfo: (
       id: number,
-      data?: Record<string, ChallengeInfo[]> | Promise<Record<string, ChallengeInfo[]>>,
+      data?: GameDetailModel | Promise<GameDetailModel>,
       options?: MutatorOptions
-    ) => mutate<Record<string, ChallengeInfo[]>>(`/api/game/${id}/challenges`, data, options),
-
-    /**
-     * @description 获取当前队伍的比赛信息，需要User权限，需要当前激活队伍已经报名
-     *
-     * @tags Game
-     * @name GameMyTeam
-     * @summary 获取当前队伍比赛信息
-     * @request GET:/api/game/{id}/myteam
-     */
-    gameMyTeam: (id: number, params: RequestParams = {}) =>
-      this.request<GameTeamDetailModel, RequestResponse>({
-        path: `/api/game/${id}/myteam`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-    /**
-     * @description 获取当前队伍的比赛信息，需要User权限，需要当前激活队伍已经报名
-     *
-     * @tags Game
-     * @name GameMyTeam
-     * @summary 获取当前队伍比赛信息
-     * @request GET:/api/game/{id}/myteam
-     */
-    useGameMyTeam: (id: number, options?: SWRConfiguration, doFetch: boolean = true) =>
-      useSWR<GameTeamDetailModel, RequestResponse>(
-        doFetch ? `/api/game/${id}/myteam` : null,
-        options
-      ),
-
-    /**
-     * @description 获取当前队伍的比赛信息，需要User权限，需要当前激活队伍已经报名
-     *
-     * @tags Game
-     * @name GameMyTeam
-     * @summary 获取当前队伍比赛信息
-     * @request GET:/api/game/{id}/myteam
-     */
-    mutateGameMyTeam: (
-      id: number,
-      data?: GameTeamDetailModel | Promise<GameTeamDetailModel>,
-      options?: MutatorOptions
-    ) => mutate<GameTeamDetailModel>(`/api/game/${id}/myteam`, data, options),
+    ) => mutate<GameDetailModel>(`/api/game/${id}/details`, data, options),
 
     /**
      * @description 获取比赛的全部题目参与信息，需要Admin权限
@@ -4011,3 +3978,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
 
 const api = new Api()
 export default api
+
+export const fetcher = async (path: string, query?: Record<string, unknown>) => {
+  return await api
+    .request({ path, query })
+    .then((res) => res.data)
+    .catch((err) => {
+      throw err.response.data
+    })
+}

@@ -19,6 +19,7 @@ using Serilog.Events;
 using System.Text;
 using System.Text.Json;
 using System.Reflection;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,7 +54,7 @@ else
     builder.Services.AddDbContext<AppDbContext>(
         options =>
         {
-            options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
+            options.UseNpgsql(builder.Configuration.GetConnectionString("Database"),
                 o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             if (builder.Environment.IsDevelopment())
             {
@@ -74,19 +75,13 @@ if (!IsTesting)
         config.AddEntityConfiguration(options =>
         {
             if (builder.Configuration.GetSection("ConnectionStrings").Exists())
-                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("Database"));
             else
                 options.UseInMemoryDatabase("TestDb");
         });
     });
 }
 #endregion Configuration
-
-#region SignalR
-
-builder.Services.AddSignalR().AddJsonProtocol();
-
-#endregion SignalR
 
 #region OpenApiDocument
 
@@ -107,13 +102,37 @@ builder.Services.AddOpenApiDocument(settings =>
 
 #endregion OpenApiDocument
 
-#region MemoryCache
+#region SignalR
 
-builder.Services.AddMemoryCache();
+var signalrBuilder = builder.Services.AddSignalR().AddJsonProtocol();
 
-#endregion MemoryCache
+#endregion SignalR
+
+#region Cache
+
+if (string.IsNullOrWhiteSpace(builder.Configuration.GetConnectionString("RedisCache")))
+{
+    builder.Services.AddDistributedMemoryCache();
+}
+else
+{
+    var constr = builder.Configuration.GetConnectionString("RedisCache");
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = constr;
+    });
+
+    signalrBuilder.AddStackExchangeRedis(constr, options =>
+    {
+        options.Configuration.ChannelPrefix = "GZCTF";
+    });
+}
+
+#endregion Cache
 
 #region Identity
+
+builder.Services.AddDataProtection().PersistKeysToDbContext<AppDbContext>();
 
 builder.Services.AddAuthentication(o =>
 {
@@ -166,16 +185,17 @@ builder.Services.AddSingleton<IRecaptchaExtension, RecaptchaExtension>()
 builder.Services.Configure<RegistryConfig>(builder.Configuration.GetSection(nameof(RegistryConfig)));
 builder.Services.Configure<AccountPolicy>(builder.Configuration.GetSection(nameof(AccountPolicy)));
 builder.Services.Configure<GlobalConfig>(builder.Configuration.GetSection(nameof(GlobalConfig)));
+builder.Services.Configure<ContainerProvider>(builder.Configuration.GetSection(nameof(ContainerProvider)));
 
-
-if (builder.Configuration.GetSection("ContainerProvider").Value == "K8s")
+if (builder.Configuration.GetSection(nameof(ContainerProvider))
+    .GetValue(typeof(ContainerProviderType), nameof(ContainerProvider.Type))
+    is ContainerProviderType.Kubernetes)
 {
     builder.Services.AddSingleton<IContainerService, K8sService>();
 }
 else
 {
-    builder.Services.AddSingleton<IContainerService, DockerService>()
-        .Configure<DockerConfig>(builder.Configuration.GetSection(nameof(DockerConfig)));
+    builder.Services.AddSingleton<IContainerService, DockerService>();
 }
 
 builder.Services.AddScoped<IContainerRepository, ContainerRepository>();
@@ -286,14 +306,14 @@ else
 
 app.UseMiddleware<ProxyMiddleware>();
 
-if (!IsTesting)
+if (!IsTesting && app.Configuration.GetValue<bool>("DisableRateLimit") is not true)
 {
     app.UseIpRateLimiting();
 }
 
-app.UseStaticFiles();
-
 app.UseResponseCompression();
+
+app.UseStaticFiles();
 
 app.UseRouting();
 
@@ -316,7 +336,7 @@ try
 {
     var version = Assembly.GetExecutingAssembly()
         .GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description;
-    logger.SystemLog($"服务器初始化: {version}", CTFServer.TaskStatus.Pending, LogLevel.Debug);
+    logger.SystemLog(version ?? "GZ::CTF", CTFServer.TaskStatus.Pending, LogLevel.Debug);
     await app.RunAsync();
 }
 catch (Exception exception)
@@ -332,5 +352,5 @@ finally
 
 public partial class Program
 {
-    public static bool IsTesting { get; set; }
+    public static bool IsTesting { get; set; } = false;
 }

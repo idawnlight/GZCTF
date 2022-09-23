@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import React, { FC, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import {
@@ -12,8 +13,10 @@ import {
   Pagination,
   Title,
   Select,
+  Tooltip,
 } from '@mantine/core'
 import { Icon } from '@mdi/react'
+import { useTooltipStyles } from '@Utils/ThemeOverride'
 import api, { ChallengeInfo, ChallengeTag, ScoreboardItem, SubmissionType } from '@Api'
 import { BloodsTypes, ChallengeTagLabelMap, SubmissionTypeIconMap } from '../utils/ChallengeItem'
 import ScoreboardItemModal from './ScoreboardItemModal'
@@ -141,7 +144,8 @@ const TableRow: FC<{
   iconMap: Map<SubmissionType, React.ReactNode>
   challenges?: Record<string, ChallengeInfo[]>
 }> = ({ item, challenges, onOpenDetail, iconMap, orgRank }) => {
-  const { classes, cx } = useStyles()
+  const { classes, cx, theme } = useStyles()
+  const { classes: tooltipClasses } = useTooltipStyles()
   const solved = item.challenges?.filter((c) => c.type !== SubmissionType.Unaccepted)
   return (
     <tr>
@@ -164,7 +168,7 @@ const TableRow: FC<{
               }),
             })}
           >
-            {item.name?.at(0) ?? 'T'}
+            {item.name?.slice(0, 1) ?? 'T'}
           </Avatar>
           <Text
             lineClamp={1}
@@ -190,13 +194,43 @@ const TableRow: FC<{
       </td>
       {challenges &&
         Object.keys(challenges).map((key) =>
-          challenges[key].map((item) => (
-            <td key={item.id} className={classes.theadMono}>
-              {iconMap.get(
-                solved?.find((c) => c.id === item.id)?.type ?? SubmissionType.Unaccepted
-              )}
-            </td>
-          ))
+          challenges[key].map((item) => {
+            const chal = solved?.find((c) => c.id === item.id)
+            const icon = iconMap.get(chal?.type ?? SubmissionType.Unaccepted)
+
+            if (!icon) return <td key={item.id} className={classes.theadMono}></td>
+
+            const tag = ChallengeTagLabelMap.get(item.tag as ChallengeTag)!
+            const textStyle = {
+              fontSize: '0.9em',
+              fontFamily: theme.fontFamilyMonospace,
+              fontWeight: 600,
+            }
+
+            return (
+              <td key={item.id} className={classes.theadMono}>
+                <Tooltip
+                  classNames={{
+                    tooltip: tooltipClasses.tooltip,
+                  }}
+                  transition="pop"
+                  label={
+                    <Stack align="flex-start" spacing={0} style={{ maxWidth: '20rem' }}>
+                      <Text lineClamp={3}>{item.title}</Text>
+                      <Text color={tag.color} style={textStyle}>
+                        + {chal?.score} pts
+                      </Text>
+                      <Text color="dimmed" style={textStyle}>
+                        # {dayjs(chal?.time).format('MM/DD HH:mm:ss')}
+                      </Text>
+                    </Stack>
+                  }
+                >
+                  {icon}
+                </Tooltip>
+              </td>
+            )
+          })
         )}
     </tr>
   )
@@ -306,7 +340,7 @@ const ScoreboardTable: FC = () => {
         title={
           <Group position="left" spacing={5} noWrap>
             <Avatar src={currentItem?.avatar} size="md" radius="md" color="brand">
-              {currentItem?.name?.at(0) ?? 'T'}
+              {currentItem?.name?.slice(0, 1) ?? 'T'}
             </Avatar>
             <Title align="left" order={4}>
               {currentItem?.name}

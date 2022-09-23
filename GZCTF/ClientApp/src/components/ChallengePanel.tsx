@@ -27,8 +27,8 @@ const ChallengePanel: FC = () => {
   const { id } = useParams()
   const numId = parseInt(id ?? '-1')
 
-  const { data: challenges } = api.game.useGameChallenges(numId)
-  const { data: myteam } = api.game.useGameMyTeam(numId)
+  const { data } = api.game.useGameChallengesWithTeamInfo(numId)
+  const challenges = data?.challenges
 
   const tags = Object.keys(challenges ?? {})
   const [activeTab, setActiveTab] = useState<ChallengeTag | 'All'>('All')
@@ -43,9 +43,8 @@ const ChallengePanel: FC = () => {
     (activeTab !== 'All' ? challenges[activeTab] ?? [] : allChallenges).filter(
       (chal) =>
         !hideSolved ||
-        (myteam &&
-          myteam.rank?.challenges?.find((c) => c.id === chal.id)?.type ===
-            SubmissionType.Unaccepted)
+        (data &&
+          data.rank?.challenges?.find((c) => c.id === chal.id)?.type === SubmissionType.Unaccepted)
     )
 
   const [challenge, setChallenge] = useState<ChallengeInfo | null>(null)
@@ -60,7 +59,7 @@ const ChallengePanel: FC = () => {
         noWrap
         position="apart"
         align="flex-start"
-        style={{ width: 'calc(100% - 20rem)' }}
+        style={{ minWidth: 'calc(100% - 20rem)' }}
       >
         <Stack sx={{ minWidth: '10rem' }} spacing={6}>
           {Array(8)
@@ -138,7 +137,7 @@ const ChallengePanel: FC = () => {
       noWrap
       position="apart"
       align="flex-start"
-      style={{ width: 'calc(100% - 20rem)' }}
+      style={{ minWidth: 'calc(100% - 20rem)', maxWidth: 'calc(100% - 20rem)' }}
     >
       <Stack style={{ minWidth: '10rem' }}>
         <Switch
@@ -228,11 +227,11 @@ const ChallengePanel: FC = () => {
                   setDetailOpened(true)
                 }}
                 solved={
-                  myteam &&
-                  myteam.rank?.challenges?.find((c) => c.id === chal.id)?.type !==
+                  data &&
+                  data.rank?.challenges?.find((c) => c.id === chal.id)?.type !==
                     SubmissionType.Unaccepted
                 }
-                teamId={myteam?.rank?.id}
+                teamId={data?.rank?.id}
               />
             ))}
           </SimpleGrid>
@@ -252,8 +251,8 @@ const ChallengePanel: FC = () => {
           centered
           gameId={numId}
           solved={
-            myteam &&
-            myteam.rank?.challenges?.find((c) => c.id === challenge?.id)?.type !==
+            data &&
+            data.rank?.challenges?.find((c) => c.id === challenge?.id)?.type !==
               SubmissionType.Unaccepted
           }
           tagData={ChallengeTagLabelMap.get((challenge?.tag as ChallengeTag) ?? ChallengeTag.Misc)!}
