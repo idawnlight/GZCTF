@@ -98,6 +98,8 @@ public class InstanceRepository : RepositoryBase, IInstanceRepository
                 instance.FlagContext = new()
                 {
                     Challenge = challenge,
+                    // tiny probability will produce the same FLAG,
+                    // but this will not affect the correctness of the answer
                     Flag = challenge.GenerateFlag(part),
                     IsOccupied = true
                 };
@@ -226,9 +228,7 @@ public class InstanceRepository : RepositoryBase, IInstanceRepository
 
         // submission is from the queue, do not modify it directly
         // we need to requery the entity to ensure it is being tracked correctly
-        var updateSub = await context.Submissions
-                .Include(s => s.Challenge)
-                .SingleAsync(s => s.Id == submission.Id, token);
+        var updateSub = await context.Submissions.SingleAsync(s => s.Id == submission.Id, token);
 
         var ret = SubmissionType.Unaccepted;
 
