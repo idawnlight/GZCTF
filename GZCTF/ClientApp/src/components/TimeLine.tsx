@@ -1,11 +1,15 @@
 import dayjs from 'dayjs'
 import ReactEcharts from 'echarts-for-react'
-import { FC } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useMantineTheme } from '@mantine/core'
 import api from '@Api'
 
-const TimeLine: FC = () => {
+interface TimeLineProps {
+  organization: string | null
+}
+
+const TimeLine: FC<TimeLineProps> = ({ organization }) => {
   const { id } = useParams()
   const numId = parseInt(id ?? '-1')
   const theme = useMantineTheme()
@@ -19,41 +23,62 @@ const TimeLine: FC = () => {
     revalidateOnFocus: false,
   })
 
-  const endTime = new Date(game?.end ?? '')
-  const startTime = new Date(game?.start ?? '')
-  const now = new Date()
+  const [now, setNow] = useState<Date>(new Date())
+  const [chartData, setChartData] = useState<any>()
 
-  const last = now < endTime ? now : endTime
+  useEffect(() => {
+    if (!scoreboard?.timeLines || !game) return
 
-  const chartData = scoreboard?.timeLine?.map((team) => ({
-    type: 'line',
-    step: 'end',
-    name: team.name,
-    data: [
-      [startTime, 0],
-      ...(team.items?.map((item) => [item.time, item.score]) ?? []),
-      [last, (team.items && team.items[team.items.length - 1]?.score) ?? 0],
-    ],
-    markLine:
-      now > endTime
-        ? undefined
-        : {
-            symbol: 'none',
-            data: [
-              {
-                xAxis: last,
-                label: {
-                  textBorderWidth: 0,
-                  fontWeight: 500,
-                  formatter: (time: any) => dayjs(time.value).format('YYYY-MM-DD HH:mm'),
-                },
+    const timeLine = scoreboard?.timeLines[organization ?? 'all'] ?? []
+    const endTime = dayjs(game.end)
+    const current = dayjs()
+    const last = endTime.diff(current, 's') < 0 ? endTime : current
+
+    setChartData([
+      {
+        type: 'line',
+        step: 'end',
+        data: [],
+        markLine:
+          dayjs(game.end).diff(dayjs(), 's') < 0
+            ? undefined
+            : {
+                symbol: 'none',
+                data: [
+                  {
+                    xAxis: last.toDate(),
+                    lineStyle: {
+                      color:
+                        theme.colorScheme === 'dark' ? theme.colors.gray[3] : theme.colors.gray[6],
+                      wight: 2,
+                    },
+                    label: {
+                      textBorderWidth: 0,
+                      fontWeight: 500,
+                      formatter: (time: any) => dayjs(time.value).format('YYYY-MM-DD HH:mm'),
+                    },
+                  },
+                ],
               },
-            ],
-          },
-  }))
+      },
+      ...(timeLine?.map((team) => ({
+        type: 'line',
+        step: 'end',
+        name: team.name,
+        data: [
+          [dayjs(game.start).toDate(), 0],
+          ...(team.items?.map((item) => [item.time, item.score]) ?? []),
+          [last.toDate(), (team.items && team.items[team.items.length - 1]?.score) ?? 0],
+        ],
+      })) ?? []),
+    ])
+
+    setNow(new Date())
+  }, [scoreboard, organization, game])
 
   return (
     <ReactEcharts
+      key={now.toUTCString()}
       theme={theme.colorScheme}
       option={{
         backgroundColor: 'transparent',
@@ -62,14 +87,14 @@ const TimeLine: FC = () => {
           feature: {
             dataZoom: {},
             restore: {},
-            saveAsImage: {}
-          }
+            saveAsImage: {},
+          },
         },
         xAxis: {
           type: 'time',
           name: '时间',
-          min: startTime,
-          max: endTime,
+          min: dayjs(game?.start).toDate(),
+          max: dayjs(game?.end).toDate(),
           splitLine: {
             show: false,
           },

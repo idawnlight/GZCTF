@@ -1,4 +1,4 @@
-import React, { CSSProperties, useEffect, useState } from 'react'
+import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react'
 
 /**
  * props for Watermark component
@@ -65,7 +65,7 @@ function generateSvg(
 ) {
   const { text, textColor, textSize, fontFamily, lineHeight, multiline, opacity, gutter, rotate } =
     options
-  const rect = calcTextRenderedRect(text, textSize, lineHeight, fontFamily)
+  const rect = calcTextRenderedRect(text, textSize, fontFamily)
   const size = Math.sqrt(rect.width * rect.width + rect.height * rect.height) + gutter * 2
   const center = size / 2
 
@@ -79,17 +79,12 @@ function generateSvg(
 
   const textEl = `<text fill='${textColor}' x='50%' y='50%' font-size='${textSize}' text-anchor='middle' font-family='${fontFamily}' transform='rotate(${rotate} ${center} ${center})' opacity='${opacity}'>${textContent}</text>`
 
-  return `<svg width='${size}' height='${
+  return `<svg width='${size}' height='${Math.ceil(
     size / 3
-  }' xmlns='http://www.w3.org/2000/svg'>${textEl}</svg>`
+  )}' xmlns='http://www.w3.org/2000/svg'>${textEl}</svg>`
 }
 
-function calcTextRenderedRect(
-  text: string,
-  fontSize: number,
-  lineHeight: string,
-  fontFamily: string
-): DOMRect {
+function calcTextRenderedRect(text: string, fontSize: number, fontFamily: string): DOMRect {
   const span = document.createElement('span')
   span.innerText = text
   span.style.fontSize = fontSize + 'px'
@@ -99,10 +94,6 @@ function calcTextRenderedRect(
   const rect = span.getBoundingClientRect()
   document.body.removeChild(span)
   return rect
-}
-
-const watermarkWrapperStyle: CSSProperties = {
-  position: 'relative',
 }
 
 const Watermark: React.FC<WatermarkProps & React.PropsWithChildren> = ({
@@ -134,28 +125,84 @@ const Watermark: React.FC<WatermarkProps & React.PropsWithChildren> = ({
       multiline,
       lineHeight,
     })
-    const convertedSvg = encodeURIComponent(svg).replace(/'/g, '%27').replace(/"/g, '%22')
-    setBackgroundImage(`url("data:image/svg+xml,${convertedSvg}")`)
+    setBackgroundImage(`url("data:image/svg+xml;base64,${window.btoa(svg)}")`)
   }, [show, text, textColor, textSize, opacity, gutter, rotate])
-
-  const watermarkStyle: CSSProperties = {
-    pointerEvents: 'none',
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    content: '',
-    backgroundRepeat: 'repeat',
-    zIndex: 10000,
-    backgroundImage,
-  }
 
   const Wrapper = wrapperElement
 
+  const watermarkStyle = useMemo(
+    () => ({
+      pointerEvents: 'none',
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundRepeat: 'repeat',
+      zIndex: Math.floor(Math.random() * 10000) + 50000,
+      backgroundImage,
+    }),
+    [backgroundImage]
+  )
+
+  const MutationObserver = window.MutationObserver
+  const kebabCase = (str: string) => str.replace(new RegExp(/[A-Z]/g), (v) => `-${v.toLowerCase()}`)
+
+  const watermarkCSS = Object.entries(watermarkStyle)
+    .map(([key, value]) => `${kebabCase(key)}:${value}`)
+    .join(';')
+
+  const wrapperRef = useRef<HTMLDivElement>()
+  const watermarkRef = useRef<HTMLDivElement>()
+
+  const watermarkBox: (layers: number, child: HTMLDivElement) => HTMLDivElement = (layers, child) => {
+    if (layers > 0) {
+      const box = document.createElement('div')
+      box.appendChild(child)
+      return watermarkBox(layers - 1, box)
+    } else {
+      return child
+    }
+  }
+
+  const updateWatermark = () => {
+    const wrapper = wrapperRef.current
+    if (!wrapper) return
+
+    const watermark = watermarkRef.current
+
+    if (!watermark || !wrapper.contains(watermark)) {
+      const div = document.createElement('div')
+      div.setAttribute('style', watermarkCSS)
+      watermarkRef.current = div
+      wrapper.appendChild(watermarkBox(Math.ceil(Math.random() * 8), div))
+    } else if (watermark.getAttribute('style') !== watermarkCSS) {
+      watermark.setAttribute('style', watermarkCSS)
+    }
+  }
+
+  const observer = new MutationObserver(updateWatermark)
+
+  // add listener to wrapper element
+  useEffect(() => {
+    if (!show) return
+
+    updateWatermark()
+    const wrapper = wrapperRef.current
+
+    if (wrapper) {
+      observer.observe(wrapper, {
+        childList: true,
+        attributes: true,
+        subtree: true,
+      })
+    }
+
+    return () => observer.disconnect()
+  }, [show, backgroundImage])
+
   return (
-    <Wrapper style={{ ...watermarkWrapperStyle, ...wrapperStyle }}>
-      {show && <div style={watermarkStyle} />}
+    <Wrapper style={{ position: 'relative', ...wrapperStyle }} ref={wrapperRef}>
       {children}
     </Wrapper>
   )

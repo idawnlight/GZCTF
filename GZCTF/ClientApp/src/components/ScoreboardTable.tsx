@@ -11,9 +11,9 @@ import {
   Box,
   Stack,
   Pagination,
-  Title,
   Select,
   Tooltip,
+  Center,
 } from '@mantine/core'
 import { Icon } from '@mdi/react'
 import { useTooltipStyles } from '@Utils/ThemeOverride'
@@ -142,11 +142,12 @@ const TableHeader = (table: Record<string, ChallengeInfo[]>) => {
 
 const TableRow: FC<{
   item: ScoreboardItem
-  orgRank: number
+  allRank: boolean
+  tableRank: number
   onOpenDetail: () => void
   iconMap: Map<SubmissionType, React.ReactNode>
   challenges?: Record<string, ChallengeInfo[]>
-}> = ({ item, challenges, onOpenDetail, iconMap, orgRank }) => {
+}> = ({ item, challenges, onOpenDetail, iconMap, tableRank, allRank }) => {
   const { classes, cx, theme } = useStyles()
   const { classes: tooltipClasses } = useTooltipStyles()
   const solved = item.challenges?.filter((c) => c.type !== SubmissionType.Unaccepted)
@@ -156,7 +157,7 @@ const TableRow: FC<{
         {item.rank}
       </td>
       <td className={cx(classes.theadMono, classes.theadFixLeft)} style={{ left: Lefts[1] }}>
-        {orgRank}
+        {allRank ? item.rank : item.organizationRank ?? tableRank}
       </td>
       <td className={cx(classes.theadFixLeft)} style={{ left: Lefts[2] }}>
         <Group position="left" spacing={5} noWrap onClick={onOpenDetail}>
@@ -227,7 +228,7 @@ const TableRow: FC<{
                     </Stack>
                   }
                 >
-                  {icon}
+                  <Center>{icon}</Center>
                 </Tooltip>
               </td>
             )
@@ -245,20 +246,26 @@ const BloodData = [
 
 const ITEM_COUNT_PER_PAGE = 30
 
-const ScoreboardTable: FC = () => {
+interface ScoreboardProps {
+  organization: string | null
+  setOrganization: (org: string | null) => void
+}
+
+const ScoreboardTable: FC<ScoreboardProps> = ({ organization, setOrganization }) => {
   const { id } = useParams()
   const numId = parseInt(id ?? '-1')
   const { classes } = useStyles()
+  const { iconMap } = SubmissionTypeIconMap(1)
+  const [activePage, setPage] = useState(1)
+
   const { data: scoreboard } = api.game.useGameScoreboard(numId, {
     refreshInterval: 0,
   })
-  const { iconMap } = SubmissionTypeIconMap(1)
-  const [activePage, setPage] = useState(1)
-  const [organization, setOrganization] = useState<string | null>('')
 
-  const filtered = !organization
-    ? scoreboard?.items
-    : scoreboard?.items?.filter((s) => s.organization === organization)
+  const filtered =
+    organization === 'all'
+      ? scoreboard?.items
+      : scoreboard?.items?.filter((s) => s.organization === organization)
 
   const base = (activePage - 1) * ITEM_COUNT_PER_PAGE
   const currentItems = filtered?.slice(base, base + ITEM_COUNT_PER_PAGE)
@@ -269,14 +276,14 @@ const ScoreboardTable: FC = () => {
   return (
     <Paper shadow="md" p="md">
       <Stack spacing="xs">
-        {scoreboard?.organizations && scoreboard.organizations.length > 0 && (
+        {scoreboard?.timeLines && Object.keys(scoreboard.timeLines).length > 1 && (
           <Group>
             <Select
-              defaultValue=""
-              data={[
-                { value: '', label: '总排行' },
-                ...scoreboard.organizations.map((o) => ({ value: o, label: o })),
-              ]}
+              defaultValue="all"
+              data={Object.keys(scoreboard.timeLines).map((o) => ({
+                value: o,
+                label: o === 'all' ? '总排行' : o,
+              }))}
               value={organization}
               onChange={(org) => {
                 setOrganization(org)
@@ -307,7 +314,8 @@ const ScoreboardTable: FC = () => {
                   currentItems?.map((item, idx) => (
                     <TableRow
                       key={base + idx}
-                      orgRank={base + idx + 1}
+                      allRank={organization === 'all'}
+                      tableRank={base + idx + 1}
                       item={item}
                       onOpenDetail={() => {
                         setCurrentItem(item)
@@ -352,16 +360,6 @@ const ScoreboardTable: FC = () => {
         </Group>
       </Stack>
       <ScoreboardItemModal
-        title={
-          <Group position="left" spacing={5} noWrap>
-            <Avatar src={currentItem?.avatar} size="md" radius="md" color="brand">
-              {currentItem?.name?.slice(0, 1) ?? 'T'}
-            </Avatar>
-            <Title align="left" order={4}>
-              {currentItem?.name}
-            </Title>
-          </Group>
-        }
         challenges={scoreboard?.challenges}
         opened={itemDetailOpened}
         centered

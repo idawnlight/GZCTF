@@ -35,6 +35,7 @@ const ChallengePanel: FC = () => {
   const [hideSolved, setHideSolved] = useLocalStorage({
     key: 'hide-solved',
     defaultValue: false,
+    getInitialValueInEffect: false,
   })
 
   const allChallenges = Object.values(challenges ?? {}).flat()
@@ -247,7 +248,7 @@ const ChallengePanel: FC = () => {
           opened={detailOpened}
           onClose={() => setDetailOpened(false)}
           withCloseButton={false}
-          size="35%"
+          size="40%"
           centered
           gameId={numId}
           solved={

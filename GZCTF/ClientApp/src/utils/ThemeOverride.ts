@@ -64,7 +64,7 @@ export const ThemeOverride: MantineThemeOverride = {
     ],
   },
   primaryColor: 'brand',
-  fontFamily: "'IBM Plex Sans', sans-serif",
+  fontFamily: "'IBM Plex Sans', -apple-system, BlinkMacSystemFont, Helvetica Neue, PingFang SC, Microsoft YaHei, Source Han Sans SC, Noto Sans CJK SC, sans-serif",
   fontFamilyMonospace: "'JetBrains Mono', monospace",
   headings: {
     fontFamily: "'IBM Plex Sans', sans-serif",
@@ -120,7 +120,10 @@ export const useTooltipStyles = createStyles((theme) => ({
 export const useIsMobile = (limit?: number) => {
   const view = useViewportSize()
   const theme = useMantineTheme()
-  return { loaded: view.width > 0, isMobile: view.width > 0 && view.width < (limit ?? theme.breakpoints.xs) }
+  return {
+    loaded: view.width > 0,
+    isMobile: view.width > 0 && view.width < (limit ?? theme.breakpoints.xs),
+  }
 }
 
 export const ACCEPT_IMAGE_MIME_TYPE = [
