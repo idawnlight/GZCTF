@@ -36,9 +36,14 @@ public class ProfileUserInfoModel
     public string? RealName { get; set; }
 
     /// <summary>
-    /// 学工号
+    /// 一卡通号
     /// </summary>
     public string? StdNumber { get; set; }
+    
+    /// <summary>
+    /// QQ 号
+    /// </summary>
+    public string? QqNumber { get; set; }
 
     /// <summary>
     /// 头像链接
@@ -61,6 +66,7 @@ public class ProfileUserInfoModel
             Phone = user.PhoneNumber,
             Avatar = user.AvatarUrl,
             StdNumber = user.StdNumber,
+            QqNumber = user.QqNumber,
             Role = user.Role
         };
 }

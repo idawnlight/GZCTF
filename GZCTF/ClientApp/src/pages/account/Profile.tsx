@@ -36,6 +36,7 @@ const Profile: FC = () => {
     userName: user?.userName,
     bio: user?.bio,
     stdNumber: user?.stdNumber,
+    qqNumber: user?.qqNumber,
     phone: user?.phone,
     realName: user?.realName,
   })
@@ -57,6 +58,7 @@ const Profile: FC = () => {
       userName: user?.userName,
       bio: user?.bio,
       stdNumber: user?.stdNumber,
+      qqNumber: user?.qqNumber,
       phone: user?.phone,
       realName: user?.realName,
     })
@@ -174,7 +176,7 @@ const Profile: FC = () => {
           disabled={disabled}
           onChange={(event) => setProfile({ ...profile, phone: event.target.value })}
         />
-        <SimpleGrid cols={2}>
+        <SimpleGrid cols={3}>
           <TextInput
             label="学工号"
             type="number"
@@ -190,6 +192,14 @@ const Profile: FC = () => {
             value={profile.realName ?? ''}
             disabled={disabled}
             onChange={(event) => setProfile({ ...profile, realName: event.target.value })}
+          />
+          <TextInput
+            label="QQ 号"
+            type="number"
+            style={{ width: '100%' }}
+            value={profile.qqNumber ?? ''}
+            disabled={disabled}
+            onChange={(event) => setProfile({ ...profile, qqNumber: event.target.value })}
           />
         </SimpleGrid>
         <Textarea

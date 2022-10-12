@@ -143,6 +143,9 @@ export interface ProfileUpdateModel {
 
   /** 学工号 */
   stdNumber?: string | null
+
+  /** QQ 号 */
+  qqNumber?: string | null
 }
 
 /**
@@ -208,6 +211,9 @@ export interface ProfileUserInfoModel {
 
   /** 学工号 */
   stdNumber?: string | null
+
+  /** QQ 号 */
+  qqNumber?: string | null
 
   /** 头像链接 */
   avatar?: string | null
@@ -280,6 +286,9 @@ export interface UserInfoModel {
 
   /** 学号 */
   stdNumber?: string | null
+
+  /** QQ 号 */
+  qqNumber?: string | null
 
   /** 联系电话 */
   phone?: string | null
@@ -388,6 +397,9 @@ export interface UpdateUserInfoModel {
 
   /** 学工号 */
   stdNumber?: string | null
+
+  /** QQ 号 */
+  qqNumber?: string | null
 
   /** 用户是否通过邮箱验证（可登录） */
   emailConfirmed?: boolean | null

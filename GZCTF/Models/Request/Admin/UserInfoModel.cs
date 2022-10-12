@@ -24,6 +24,11 @@ public class UserInfoModel
     /// 学号
     /// </summary>
     public string? StdNumber { get; set; }
+    
+    /// <summary>
+    /// QQ 号
+    /// </summary>
+    public string? QqNumber { get; set; }
 
     /// <summary>
     /// 联系电话
@@ -83,6 +88,7 @@ public class UserInfoModel
             RealName = user.RealName,
             UserName = user.UserName,
             StdNumber = user.StdNumber,
+            QqNumber = user.QqNumber,
             LastVisitedUTC = user.LastVisitedUTC,
             RegisterTimeUTC = user.RegisterTimeUTC,
             EmailConfirmed = user.EmailConfirmed

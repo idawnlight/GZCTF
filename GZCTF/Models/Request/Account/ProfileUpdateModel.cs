@@ -35,6 +35,12 @@ public class ProfileUpdateModel
     /// <summary>
     /// 学工号
     /// </summary>
-    [MaxLength(15, ErrorMessage = "学工号过长")]
+    [MaxLength(15, ErrorMessage = "一卡通号过长")]
     public string? StdNumber { get; set; }
+    
+    /// <summary>
+    /// QQ 号
+    /// </summary>
+    [MaxLength(10, ErrorMessage = "QQ 号过长")]
+    public string? QqNumber { get; set; }
 }

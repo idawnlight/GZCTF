@@ -50,7 +50,8 @@ const UserEditModal: FC<UserEditModalProps> = (props) => {
       bio: user.bio,
       realName: user.realName,
       stdNumber: user.stdNumber,
-      phone: user.phone,
+      qqNumber: user.qqNumber,
+      phone: user.phone
     })
     setActiveUser(user)
   }, [user])
@@ -141,6 +142,14 @@ const UserEditModal: FC<UserEditModalProps> = (props) => {
             value={profile.realName ?? ''}
             disabled={disabled}
             onChange={(event) => setProfile({ ...profile, realName: event.target.value })}
+          />
+          <TextInput
+            label="QQ 号"
+            type="number"
+            style={{ width: '100%' }}
+            value={profile.qqNumber ?? ''}
+            disabled={disabled}
+            onChange={(event) => setProfile({ ...profile, qqNumber: event.target.value })}
           />
         </SimpleGrid>
         <Textarea

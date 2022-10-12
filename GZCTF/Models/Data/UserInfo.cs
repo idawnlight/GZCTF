@@ -53,6 +53,13 @@ public class UserInfo : IdentityUser
     [MaxLength(31)]
     [ProtectedPersonalData]
     public string StdNumber { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// QQ 号
+    /// </summary>
+    [MaxLength(10)]
+    [ProtectedPersonalData]
+    public string QqNumber { get; set; } = string.Empty;
 
     #region 数据库关系
 
@@ -100,6 +107,7 @@ public class UserInfo : IdentityUser
         Bio = model.Bio ?? Bio;
         Role = model.Role ?? Role;
         StdNumber = model.StdNumber ?? StdNumber;
+        QqNumber = model.QqNumber ?? QqNumber;
         RealName = model.RealName ?? RealName;
         PhoneNumber = model.Phone ?? PhoneNumber;
         EmailConfirmed = model.EmailConfirmed ?? EmailConfirmed;
@@ -112,5 +120,6 @@ public class UserInfo : IdentityUser
         PhoneNumber = model.Phone ?? PhoneNumber;
         RealName = model.RealName ?? RealName;
         StdNumber = model.StdNumber ?? StdNumber;
+        QqNumber = model.QqNumber ?? QqNumber;
     }
 }

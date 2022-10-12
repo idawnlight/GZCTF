@@ -134,7 +134,8 @@ public class AdminController : ControllerBase
                     EF.Functions.Like(item.UserName, $"%{hint}%") ||
                     EF.Functions.Like(item.StdNumber, $"%{hint}%") ||
                     EF.Functions.Like(item.Email, $"%{hint}%") ||
-                    EF.Functions.Like(item.RealName, $"%{hint}%")
+                    EF.Functions.Like(item.RealName, $"%{hint}%") ||
+                    EF.Functions.Like(item.QqNumber, $"%{hint}%")
                 )
                 .OrderBy(e => e.Id).Take(30)
             select UserInfoModel.FromUserInfo(user)
