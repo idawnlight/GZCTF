@@ -1,6 +1,6 @@
 import { FC, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Button, Anchor, TextInput, PasswordInput } from '@mantine/core'
+import {Button, Anchor, TextInput, PasswordInput, SimpleGrid} from '@mantine/core'
 import { useInputState } from '@mantine/hooks'
 import { showNotification, updateNotification } from '@mantine/notifications'
 import { mdiCheck, mdiClose } from '@mdi/js'
@@ -40,6 +40,10 @@ const Register: FC = () => {
   const [retypedPwd, setRetypedPwd] = useInputState('')
   const [uname, setUname] = useInputState('')
   const [email, setEmail] = useInputState('')
+  const [realName, setRealname] = useInputState('')
+  const [stdNumber, setStdNumber] = useInputState('')
+  const [phoneNumber, setPhoneNumber] = useInputState('')
+  const [qqNumber, setQqNumber] = useInputState('')
   const [disabled, setDisabled] = useState(false)
 
   const navigate = useNavigate()
@@ -91,6 +95,10 @@ const Register: FC = () => {
         userName: uname,
         password: pwd,
         email: email,
+        realName: realName,
+        stdNumber: stdNumber,
+        qqNumber: qqNumber,
+        phoneNumber: phoneNumber,
         gToken: token,
       })
       .then((res) => {
@@ -160,6 +168,50 @@ const Register: FC = () => {
         style={{ width: '100%' }}
         error={pwd !== retypedPwd}
       />
+      <SimpleGrid cols={2}>
+        <TextInput
+          required
+          label="真实姓名"
+          type="text"
+          placeholder="张三"
+          style={{ width: '100%' }}
+          value={realName}
+          disabled={disabled}
+          onChange={(event) => setRealname(event.currentTarget.value)}
+        />
+        <TextInput
+          required
+          label="一卡通号"
+          type="text"
+          placeholder="213... / 220..."
+          style={{ width: '100%' }}
+          value={stdNumber}
+          disabled={disabled}
+          onChange={(event) => setStdNumber(event.currentTarget.value)}
+        />
+      </SimpleGrid>
+      <SimpleGrid cols={2}>
+        <TextInput
+          required
+          label="手机号"
+          type="text"
+          placeholder="19201680101"
+          style={{ width: '100%' }}
+          value={phoneNumber}
+          disabled={disabled}
+          onChange={(event) => setPhoneNumber(event.currentTarget.value)}
+        />
+        <TextInput
+          required
+          label="QQ 号"
+          type="text"
+          placeholder="^[0-9]{6,10}$"
+          style={{ width: '100%' }}
+          value={qqNumber}
+          disabled={disabled}
+          onChange={(event) => setQqNumber(event.currentTarget.value)}
+        />
+      </SimpleGrid>
       <Anchor
         sx={(theme) => ({
           fontSize: theme.fontSizes.xs,

@@ -68,6 +68,18 @@ export interface RegisterModel {
    */
   email: string
 
+  /** 真实姓名 */
+  realName: string
+
+  /** 一卡通号 */
+  stdNumber: string
+
+  /** 手机号 */
+  phoneNumber: string
+
+  /** QQ 号 */
+  qqNumber: string
+
   /** Google Recaptcha Token */
   gToken?: string | null
 }

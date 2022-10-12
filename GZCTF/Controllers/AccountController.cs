@@ -81,7 +81,11 @@ public class AccountController : ControllerBase
         {
             UserName = model.UserName,
             Email = model.Email,
-            Role = Role.User
+            Role = Role.User,
+            RealName = model.RealName!,
+            StdNumber = model.StdNumber!,
+            PhoneNumber = model.PhoneNumber!,
+            QqNumber = model.QqNumber!,
         };
 
         user.UpdateByHttpContext(HttpContext);
