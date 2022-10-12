@@ -205,7 +205,7 @@ const Register: FC = () => {
           required
           label="QQ 号"
           type="text"
-          placeholder="^[0-9]{6,10}$"
+          placeholder="^\d{6,10}$"
           style={{ width: '100%' }}
           value={qqNumber}
           disabled={disabled}

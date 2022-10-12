@@ -1,10 +1,10 @@
 import { FC, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Button, Modal, ModalProps, Select, Stack, TextInput } from '@mantine/core'
+import { Button, Modal, ModalProps, Select, Stack, TextInput, Text } from '@mantine/core'
 import { showNotification } from '@mantine/notifications'
 import { mdiClose } from '@mdi/js'
 import { Icon } from '@mdi/react'
-import { useTeams } from '@Utils/useUser'
+import { useTeams, useUser } from '@Utils/useUser'
 import api, { GameJoinModel } from '@Api'
 
 interface GameJoinModalProps extends ModalProps {
@@ -17,11 +17,26 @@ const GameJoinModal: FC<GameJoinModalProps> = (props) => {
   const numId = parseInt(id ?? '-1')
   const { onSubmitJoin, currentOrganization, ...modalProps } = props
   const { teams } = useTeams()
+  const { user, error } = useUser()
 
   const { data: game } = api.game.useGameGames(numId, {
     refreshInterval: 0,
     revalidateOnFocus: false,
   })
+
+  if (user && !error && game?.organizations?.includes('__sus')) {
+    game.organizations = ['__sus']
+    let stdNumber = user.stdNumber?.toString() ?? ''
+    if (/^21322\d{4}$/.test(stdNumber)) {
+      game.organizations.push('本科新生')
+    } else if (/^213\d{6}$/.test(stdNumber)) {
+      game.organizations.push('本科生')
+    } else if (/^2\d{8}$/.test(stdNumber)) {
+      game.organizations.push('研究生')
+    } else {
+      game.organizations.push('不参与排名')
+    }
+  }
 
   const [inviteCode, setInviteCode] = useState('')
   const [organization, setOrganization] = useState(currentOrganization ?? '')
@@ -55,11 +70,16 @@ const GameJoinModal: FC<GameJoinModalProps> = (props) => {
             required
             label="选择你的参赛组织"
             description="本场比赛具有多个参赛组织，请选择你的参赛组织"
-            data={game.organizations}
+            data={game.organizations.filter(e => e != '__sus')}
             disabled={disabled}
             value={organization}
             onChange={(e) => setOrganization(e ?? '')}
           />
+        )}
+        {game?.organizations && game.organizations.length > 0 && (
+          <Text size="sm">
+            可选参赛组织由一卡通号决定，如不正确，请修改后报名；如有疑问，请联系管理员。
+          </Text>
         )}
         <Button
           disabled={disabled}
