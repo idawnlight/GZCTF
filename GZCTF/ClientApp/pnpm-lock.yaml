@@ -14,7 +14,7 @@ specifiers:
   '@mantine/notifications': ^5.5.5
   '@mdi/js': ^7.0.96
   '@mdi/react': ^1.6.1
-  '@microsoft/signalr': ^6.0.9
+  '@microsoft/signalr': ^6.0.10
   '@nabla/vite-plugin-eslint': ^1.4.1
   '@trivago/prettier-plugin-sort-imports': ^3.3.0
   '@types/katex': ^0.14.0
@@ -45,7 +45,7 @@ specifiers:
   react-dom: ^18.2.0
   react-router: ^6.4.2
   react-router-dom: ^6.4.2
-  rollup: ^3.0.0
+  rollup: ^3.1.0
   swagger-typescript-api: ^10.0.1
   swr: ^1.3.0
   tslib: ^2.4.0
@@ -69,7 +69,7 @@ dependencies:
   '@mantine/notifications': 5.5.5_sboc75uudxrw5k7gcptvtad4eq
   '@mdi/js': 7.0.96
   '@mdi/react': 1.6.1
-  '@microsoft/signalr': 6.0.9
+  '@microsoft/signalr': 6.0.10
   dayjs: 1.11.5
   echarts: 5.4.0
   echarts-for-react: 3.0.2_echarts@5.4.0+react@18.2.0
@@ -105,7 +105,7 @@ devDependencies:
   form-data: 4.0.0
   lodash: 4.17.21
   prettier: 2.7.1
-  rollup: 3.0.0
+  rollup: 3.1.0
   swagger-typescript-api: 10.0.1
   tslib: 2.4.0
   typescript: 4.8.4
@@ -831,8 +831,8 @@ packages:
       prop-types: 15.8.1
     dev: false
 
-  /@microsoft/signalr/6.0.9:
-    resolution: {integrity: sha512-DGVYe3ycT2PfRU7m3xCbv1HjhvClKl2VB1HyFlvf8SqBGXz3Cx+oalNWGYrGIgADA6Q2xaB4GaDmDdprTa2U0Q==}
+  /@microsoft/signalr/6.0.10:
+    resolution: {integrity: sha512-ND9LiIYac+ZDgCgW2QzpNfe9BTiOtjc2AX/2GtFIhRGhEzx5CixcNANg2VGj27IAxycAPPnEoy7+QA31Eil7QQ==}
     dependencies:
       abort-controller: 3.0.0
       eventsource: 1.1.2
@@ -1384,7 +1384,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001418
-      electron-to-chromium: 1.4.277
+      electron-to-chromium: 1.4.279
       node-releases: 2.0.6
       update-browserslist-db: 1.0.10_browserslist@4.21.4
 
@@ -1597,8 +1597,8 @@ packages:
       zrender: 5.4.0
     dev: false
 
-  /electron-to-chromium/1.4.277:
-    resolution: {integrity: sha512-Ej4VyUfGdVY5D2J5WHAVNqrEFBKgeNcX7p/bBQU4x/VKwvnyEvGd62NEkIK3lykLEe9Cg4MCcoWAa+u97o0u/A==}
+  /electron-to-chromium/1.4.279:
+    resolution: {integrity: sha512-xs7vEuSZ84+JsHSTFqqG0TE3i8EAivHomRQZhhcRvsmnjsh5C2KdhwNKf4ZRYtzq75wojpFyqb62m32Oam57wA==}
 
   /embla-carousel-autoplay/7.0.3_embla-carousel@7.0.3:
     resolution: {integrity: sha512-cFysSJCzQ0+OvPkw0xb4xzVQlcr1f1Rbp6DhU3cGaIbk9XTPEvalvdUEyyrng4wiam/K7Zq5gjj6D9HU2fN1lg==}
@@ -3061,8 +3061,8 @@ packages:
     optionalDependencies:
       fsevents: 2.3.2
 
-  /rollup/3.0.0:
-    resolution: {integrity: sha512-iVomS2lySi4BM2QJb7lGZBjSndUEs6Ip+VDl25jcbM99VI5vWeEitvUSiNQkQkwqEiI4515m5shjyuwPcXS5Dg==}
+  /rollup/3.1.0:
+    resolution: {integrity: sha512-GEvr+COcXicr4nuih6mpt2Eydq5lZ72z0RrKx1H4/Q2ouT34OHrIIJ9OUj2sZqUhq7QL8Hp8Q8BoWbjL/6ccRQ==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
     optionalDependencies:
