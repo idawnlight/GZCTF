@@ -26,7 +26,7 @@ const GameJoinModal: FC<GameJoinModalProps> = (props) => {
 
   if (user && !error && game?.organizations?.includes('__sus')) {
     game.organizations = ['__sus']
-    let stdNumber = user.stdNumber?.toString() ?? ''
+    const stdNumber = user.stdNumber?.toString() ?? ''
     if (/^21322\d{4}$/.test(stdNumber)) {
       game.organizations.push('本科新生')
     } else if (/^213\d{6}$/.test(stdNumber)) {

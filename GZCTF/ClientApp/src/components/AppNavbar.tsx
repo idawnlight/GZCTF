@@ -28,7 +28,7 @@ import {
 import { Icon } from '@mdi/react'
 import { useUser } from '@Utils/useUser'
 import api, { Role } from '@Api'
-import MainIcon from './icon/MainIcon'
+import SUSIcon from './icon/SUSIcon'
 
 const useStyles = createStyles((theme, _param, getRef) => {
   const active = { ref: getRef('activeItem') } as const
@@ -169,9 +169,8 @@ const AppNavbar: FC = () => {
       {/* Logo */}
       <Navbar.Section grow>
         <Center>
-          <MainIcon
+          <SUSIcon
             style={{ width: '100%', height: 'auto', position: 'relative', left: 2 }}
-            ignoreTheme
             onClick={() => navigate('/')}
           />
         </Center>
