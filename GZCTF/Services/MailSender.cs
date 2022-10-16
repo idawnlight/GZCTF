@@ -35,6 +35,7 @@ public class MailSender : IMailSender
         try
         {
             using var client = new SmtpClient();
+            client.CheckCertificateRevocation = false;
 
             await client.ConnectAsync(options.Smtp.Host, options.Smtp.Port.Value);
             client.AuthenticationMechanisms.Remove("XOAUTH2");
