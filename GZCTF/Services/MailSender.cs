@@ -27,7 +27,7 @@ public class MailSender : IMailSender
             return true;
 
         var msg = new MimeMessage();
-        msg.From.Add(new MailboxAddress(options.SendMailAddress, options.SendMailAddress));
+        msg.From.Add(new MailboxAddress("SUS", options.SendMailAddress));
         msg.To.Add(new MailboxAddress(to, to));
         msg.Subject = subject;
         msg.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = content };

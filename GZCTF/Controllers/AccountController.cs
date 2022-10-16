@@ -132,7 +132,7 @@ public class AccountController : ControllerBase
         else
         {
             if (!mailSender.SendConfirmEmailUrl(user.UserName, user.Email,
-                $"https://{HttpContext.Request.Host}/account/verify?token={token}&email={Codec.Base64.Encode(model.Email)}"))
+                $"http://{HttpContext.Request.Host}/account/verify?token={token}&email={Codec.Base64.Encode(model.Email)}"))
                 return BadRequest(new RequestResponse("邮件无法发送，请联系管理员"));
         }
 
@@ -183,7 +183,7 @@ public class AccountController : ControllerBase
         else
         {
             if (!mailSender.SendResetPasswordUrl(user.UserName, user.Email,
-                $"https://{HttpContext.Request.Host}/account/reset?token={token}&email={Codec.Base64.Encode(model.Email)}"))
+                $"http://{HttpContext.Request.Host}/account/reset?token={token}&email={Codec.Base64.Encode(model.Email)}"))
                 return BadRequest(new RequestResponse("邮件无法发送，请联系管理员"));
         }
 
@@ -419,7 +419,7 @@ public class AccountController : ControllerBase
         else
         {
             if (!mailSender.SendConfirmEmailUrl(user.UserName, user.Email,
-                $"https://{HttpContext.Request.Host}/account/confirm?token={token}&email={Codec.Base64.Encode(model.NewMail)}"))
+                $"http://{HttpContext.Request.Host}/account/confirm?token={token}&email={Codec.Base64.Encode(model.NewMail)}"))
                 return BadRequest(new RequestResponse("邮件无法发送，请联系管理员"));
         }
 
