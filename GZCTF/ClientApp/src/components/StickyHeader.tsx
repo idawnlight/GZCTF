@@ -1,5 +1,6 @@
 import { FC } from 'react'
 import { Group, Title, Text, createStyles, keyframes } from '@mantine/core'
+import { useConfig } from '@Utils/useConfig'
 import LogoHeader from './LogoHeader'
 
 const useStyles = createStyles((theme) => ({
@@ -40,12 +41,13 @@ const useStyles = createStyles((theme) => ({
 
 const StickyHeader: FC = () => {
   const { classes } = useStyles()
+  const { config } = useConfig()
 
   return (
     <Group position="apart" align="flex-end" className={classes.group}>
       <LogoHeader />
       <Title className={classes.subtitle} order={3}>
-        &gt; Hack for fun not for profit
+        &gt; {config?.slogan ?? 'Hack for fun not for profit'}
         <Text span className={classes.blink}>
           _
         </Text>

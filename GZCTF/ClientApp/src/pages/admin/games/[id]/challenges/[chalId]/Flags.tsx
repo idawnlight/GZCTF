@@ -169,7 +169,7 @@ const OneAttachmentWithFlags: FC<FlagEditProps> = ({ onDelete }) => {
     if (flagTemplate !== challenge?.flagTemplate) {
       setDisabled(true)
       api.edit
-        // allow empty flag template to be set
+        // allow empty flag template to be set (but not null or undefined)
         .editUpdateGameChallenge(numId, numCId, { flagTemplate })
         .then(() => {
           showNotification({
@@ -464,12 +464,15 @@ const GameChallengeEdit: FC = () => {
       headProps={{ position: 'apart' }}
       head={
         <>
-          <Button
-            leftIcon={<Icon path={mdiKeyboardBackspace} size={1} />}
-            onClick={() => navigate(`/admin/games/${id}/challenges`)}
-          >
-            返回上级
-          </Button>
+          <Group position="left">
+            <Button
+              leftIcon={<Icon path={mdiKeyboardBackspace} size={1} />}
+              onClick={() => navigate(`/admin/games/${id}/challenges`)}
+            >
+              返回上级
+            </Button>
+            <Title># {challenge?.title}</Title>
+          </Group>
           <Group position="right">
             <Button
               leftIcon={<Icon path={mdiPuzzleEditOutline} size={1} />}

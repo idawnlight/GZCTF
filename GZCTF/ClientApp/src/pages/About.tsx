@@ -14,6 +14,7 @@ import {
 } from '@mantine/core'
 import WithNavBar from '@Components/WithNavbar'
 import MainIcon from '@Components/icon/MainIcon'
+import { useConfig } from '@Utils/useConfig'
 import { usePageTitle } from '@Utils/usePageTitle'
 
 const sha = import.meta.env.VITE_APP_GIT_SHA ?? '000000'
@@ -51,6 +52,8 @@ const useStyles = createStyles((theme) => ({
 
 const About: FC = () => {
   const { classes } = useStyles()
+  const { config } = useConfig()
+
   usePageTitle('关于')
 
   return (
@@ -61,7 +64,7 @@ const About: FC = () => {
             GZ::CTF
           </Title>
           <Text className={classes.bio}>
-            &gt; Hack for fun not for profit
+            &gt; {config?.slogan ?? 'Hack for fun not for profit'}
             <Text span className={classes.blink}>
               _
             </Text>

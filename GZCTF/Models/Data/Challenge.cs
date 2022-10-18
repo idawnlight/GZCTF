@@ -1,9 +1,9 @@
-﻿using CTFServer.Models.Data;
-using CTFServer.Models.Request.Edit;
-using CTFServer.Utils;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using CTFServer.Models.Data;
+using CTFServer.Models.Request.Edit;
+using CTFServer.Utils;
 
 namespace CTFServer.Models;
 
@@ -222,7 +222,9 @@ public class Challenge
         Tag = model.Tag ?? Tag;
         Hints = model.Hints ?? Hints;
         IsEnabled = model.IsEnabled ?? IsEnabled;
-        FlagTemplate = string.IsNullOrWhiteSpace(model.FlagTemplate) ? null : model.FlagTemplate;
+        // only set FlagTemplate to null when it pass an empty string (but not null)
+        FlagTemplate = model.FlagTemplate is null ? FlagTemplate :
+            string.IsNullOrWhiteSpace(model.FlagTemplate) ? null : model.FlagTemplate;
         CPUCount = model.CPUCount ?? CPUCount;
         MemoryLimit = model.MemoryLimit ?? MemoryLimit;
         StorageLimit = model.StorageLimit ?? StorageLimit;

@@ -1,3 +1,4 @@
+using System.Net;
 using CTFServer.Models.Internal;
 using CTFServer.Services.Interface;
 using CTFServer.Utils;
@@ -5,7 +6,6 @@ using k8s;
 using k8s.Autorest;
 using k8s.Models;
 using Microsoft.Extensions.Options;
-using System.Net;
 
 namespace CTFServer.Services;
 
@@ -53,7 +53,7 @@ public class K8sService : IContainerService
         logger.SystemLog($"K8s 服务已启动 ({config.Host})", TaskStatus.Success, LogLevel.Debug);
     }
 
-    public async Task<Container?> CreateContainer(ContainerConfig config, CancellationToken token = default)
+    public async Task<Container?> CreateContainerAsync(ContainerConfig config, CancellationToken token = default)
     {
         // use uuid avoid conflict
         var name = $"{config.Image.Split("/").LastOrDefault()?.Split(":").FirstOrDefault()}-{Guid.NewGuid().ToString("N")[..16]}"
@@ -186,7 +186,7 @@ public class K8sService : IContainerService
         return container;
     }
 
-    public async Task DestroyContainer(Container container, CancellationToken token = default)
+    public async Task DestroyContainerAsync(Container container, CancellationToken token = default)
     {
         try
         {
@@ -234,24 +234,7 @@ public class K8sService : IContainerService
                             {
                                 new V1NetworkPolicyPeer() { IpBlock = new() { Cidr = "0.0.0.0/0", Except = new[] { "10.0.0.0/8" } } },
                             }
-                        },
-                        //new V1NetworkPolicyEgressRule()
-                        //{
-                        //    To = new[]
-                        //    {
-                        //        new V1NetworkPolicyPeer() {
-                        //            NamespaceSelector = new() { MatchLabels = new Dictionary<string, string> {
-                        //                ["kubernetes.io/metadata.name"] = "kube-system"
-                        //            } },
-                        //            PodSelector = new() { MatchLabels = new Dictionary<string, string> {
-                        //                ["k8s-app"] = "kube-dns"
-                        //            } }
-                        //        }
-                        //    },
-                        //    Ports = new[] {
-                        //        new V1NetworkPolicyPort() { Port = 53, Protocol = "UDP" }
-                        //    }
-                        //}
+                        }
                     }
                 }
             }, Namespace);

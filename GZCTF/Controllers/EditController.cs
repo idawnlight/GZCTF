@@ -1,4 +1,5 @@
-﻿using CTFServer.Extensions;
+﻿using System.Net.Mime;
+using CTFServer.Extensions;
 using CTFServer.Middlewares;
 using CTFServer.Models.Request.Edit;
 using CTFServer.Models.Request.Game;
@@ -8,7 +9,6 @@ using CTFServer.Services.Interface;
 using CTFServer.Utils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Mime;
 
 namespace CTFServer.Controllers;
 
@@ -569,7 +569,7 @@ public class EditController : Controller
 
         var user = await userManager.GetUserAsync(User);
 
-        var container = await containerService.CreateContainer(new()
+        var container = await containerService.CreateContainerAsync(new()
         {
             TeamId = "admin",
             UserId = user.Id,
@@ -620,7 +620,7 @@ public class EditController : Controller
         if (challenge.TestContainer is null)
             return Ok();
 
-        await containerService.DestroyContainer(challenge.TestContainer, token);
+        await containerService.DestroyContainerAsync(challenge.TestContainer, token);
         await containerRepository.RemoveContainer(challenge.TestContainer, token);
 
         return Ok();

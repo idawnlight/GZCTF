@@ -1,9 +1,9 @@
-﻿using CTFServer.Models.Internal;
+﻿using System.Reflection;
+using CTFServer.Models.Internal;
 using CTFServer.Services.Interface;
 using CTFServer.Utils;
-using Microsoft.Extensions.Options;
-using System.Reflection;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Options;
 using MimeKit;
 
 namespace CTFServer.Services;
@@ -53,7 +53,7 @@ public class MailSender : IMailSender
         }
     }
 
-    public async Task SendUrl(string? title, string? infomation, string? btnmsg, string? userName, string? email, string? url)
+    public async Task SendUrlAsync(string? title, string? infomation, string? btnmsg, string? userName, string? email, string? url)
     {
         if (email is null || userName is null || title is null)
         {
@@ -61,11 +61,11 @@ public class MailSender : IMailSender
             return;
         }
 
-        string _namespace = MethodBase.GetCurrentMethod()!.DeclaringType!.Namespace!;
-        Assembly _assembly = Assembly.GetExecutingAssembly();
-        string resourceName = $"{_namespace}.Assets.URLEmailTemplate.html";
+        string ns = typeof(MailSender).Namespace ?? "CTFServer.Services";
+        Assembly asm = typeof(MailSender).Assembly;
+        string resourceName = $"{ns}.Assets.URLEmailTemplate.html";
         string emailContent = await
-            new StreamReader(_assembly.GetManifestResourceStream(resourceName)!)
+            new StreamReader(asm.GetManifestResourceStream(resourceName)!)
             .ReadToEndAsync();
         emailContent = emailContent
             .Replace("{title}", title)
@@ -84,7 +84,7 @@ public class MailSender : IMailSender
         if (options?.SendMailAddress is null)
             return false;
 
-        var _ = SendUrl(title, infomation, btnmsg, userName, email, url);
+        var _ = SendUrlAsync(title, infomation, btnmsg, userName, email, url);
         return true;
     }
 
