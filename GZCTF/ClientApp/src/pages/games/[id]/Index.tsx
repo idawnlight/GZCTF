@@ -169,7 +169,7 @@ const GameDetail: FC = () => {
 
   const canSubmit =
     (status === ParticipationStatus.Unsubmitted || status === ParticipationStatus.Denied) &&
-    !finished &&
+    !started &&
     user &&
     teams &&
     teams.length > 0
@@ -222,7 +222,7 @@ const GameDetail: FC = () => {
   const ControlButtons = (
     <>
       <Button disabled={!canSubmit} onClick={onJoin}>
-        {finished ? '比赛结束' : !user ? '请先登录' : GameActionMap.get(status)}
+        {finished ? '比赛结束' : !user ? '请先登录' : started ? '停止报名' : GameActionMap.get(status)}
       </Button>
       {started && !isMobile && (
         <Button onClick={() => navigate(`/games/${numId}/scoreboard`)}>查看榜单</Button>
