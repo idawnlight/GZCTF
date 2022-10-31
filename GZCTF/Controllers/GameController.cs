@@ -459,7 +459,7 @@ public class GameController : ControllerBase
 
         var scoreboard = await gameRepository.GetScoreboard(game, token);
 
-        var stream = ExcelHelper.GetScoreboardExcel(scoreboard, game);
+        var stream = ExcelHelper.GetScoreboardExcel(scoreboard, game, userManager, teamRepository);
         stream.Seek(0, SeekOrigin.Begin);
 
         return File(stream,

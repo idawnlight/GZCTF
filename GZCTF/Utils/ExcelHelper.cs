@@ -1,4 +1,6 @@
 ﻿using CTFServer.Models.Request.Game;
+using CTFServer.Repositories.Interface;
+using Microsoft.AspNetCore.Identity;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 
@@ -6,16 +8,16 @@ namespace CTFServer.Utils;
 
 public static class ExcelHelper
 {
-    private static readonly string[] CommonScoreboardHeader = { "排名", "战队", "解题数量", "得分时间", "总分" };
+    private static readonly string[] CommonScoreboardHeader = { "排名", "战队", "真实姓名", "一卡通号", "解题数量", "得分时间", "总分" };
     private static readonly string[] CommonSubmissionHeader = { "提交状态", "提交时间", "战队", "用户", "题目", "提交内容", "用户邮箱" };
 
-    public static MemoryStream GetScoreboardExcel(ScoreboardModel scoreboard, Game game)
+    public static MemoryStream GetScoreboardExcel(ScoreboardModel scoreboard, Game game, UserManager<UserInfo> userManager, ITeamRepository teamRepository)
     {
         var workbook = new XSSFWorkbook();
         var boardSheet = workbook.CreateSheet("排行榜");
         var headerStyle = GetHeaderStyle(workbook);
         var challIds = WriteBoardHeader(boardSheet, headerStyle, scoreboard, game);
-        WriteBoardContent(boardSheet, scoreboard, challIds, game);
+        WriteBoardContent(boardSheet, scoreboard, challIds, game, userManager, teamRepository);
 
         var stream = new MemoryStream();
         workbook.Write(stream, true);
@@ -115,7 +117,7 @@ public static class ExcelHelper
         return challIds.ToArray();
     }
 
-    private static void WriteBoardContent(ISheet sheet, ScoreboardModel scoreboard, int[] challIds, Game game)
+    private static void WriteBoardContent(ISheet sheet, ScoreboardModel scoreboard, int[] challIds, Game game, UserManager<UserInfo> userManager, ITeamRepository teamRepository)
     {
         var rowIndex = 1;
         var withOrg = game.Organizations is not null && game.Organizations.Count > 0;
@@ -124,11 +126,18 @@ public static class ExcelHelper
             var row = sheet.CreateRow(rowIndex);
             row.CreateCell(0).SetCellValue(item.Rank);
             row.CreateCell(1).SetCellValue(item.Name);
-            row.CreateCell(2).SetCellValue(item.SolvedCount);
-            row.CreateCell(3).SetCellValue(item.LastSubmissionTime.ToString("u"));
-            row.CreateCell(4).SetCellValue(item.Score);
 
-            var colIndex = 5;
+            var team = teamRepository.GetTeamById(item.Id).Result;
+            var user = team?.Captain;
+
+            row.CreateCell(2).SetCellValue(user?.RealName);
+            row.CreateCell(3).SetCellValue(user?.StdNumber);
+
+            row.CreateCell(4).SetCellValue(item.SolvedCount);
+            row.CreateCell(5).SetCellValue(item.LastSubmissionTime.ToString("u"));
+            row.CreateCell(6).SetCellValue(item.Score);
+
+            var colIndex = 7;
             if (withOrg)
                 row.CreateCell(colIndex++).SetCellValue(item.Organization);
 
