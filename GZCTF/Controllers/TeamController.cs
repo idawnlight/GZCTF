@@ -59,6 +59,33 @@ public class TeamController : ControllerBase
 
         return Ok(TeamInfoModel.FromTeam(team));
     }
+    
+    /// <summary>
+    /// 获取队伍信息
+    /// </summary>
+    /// <remarks>
+    /// 根据邀请码获取一个队伍的基本信息
+    /// </remarks>
+    /// <param name="invite">邀请码</param>
+    /// <param name="token"></param>
+    /// <response code="200">成功获取队伍信息</response>
+    /// <response code="400">队伍不存在</response>
+    [HttpGet("retrieve/{invite}")]
+    [ProducesResponseType(typeof(TeamInfoModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RequestResponse), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetBasicInfoByInviteToken(string invite, CancellationToken token)
+    {
+        var inviteToken = invite.Split(':');
+        if (inviteToken.Length != 3)
+            return BadRequest(new RequestResponse("邀请码格式错误", 400));
+        
+        var team = await teamRepository.GetTeamByInviteToken(inviteToken[2], token);
+
+        if (team is null)
+            return NotFound(new RequestResponse("队伍不存在", 404));
+
+        return Ok(TeamInfoModel.FromTeam(team));
+    }
 
     /// <summary>
     /// 获取当前自己队伍信息

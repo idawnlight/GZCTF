@@ -53,6 +53,9 @@ public class TeamRepository : RepositoryBase, ITeamRepository
     public Task<Team?> GetTeamById(int id, CancellationToken token = default)
         => context.Teams.Include(e => e.Members).FirstOrDefaultAsync(t => t.Id == id, token);
 
+    public Task<Team?> GetTeamByInviteToken(string invite, CancellationToken token = default)
+        => context.Teams.Include(e => e.Members).FirstOrDefaultAsync(t => t.InviteToken == invite, token);
+
     public Task<Team[]> GetTeams(int count = 100, int skip = 0, CancellationToken token = default)
         => context.Teams.Include(t => t.Members).OrderBy(t => t.Id)
             .Skip(skip).Take(count).ToArrayAsync(token);

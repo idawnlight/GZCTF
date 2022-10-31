@@ -20,6 +20,14 @@ public interface ITeamRepository : IRepository
     /// <param name="token"></param>
     /// <returns></returns>
     public Task<Team?> GetTeamById(int id, CancellationToken token = default);
+    
+    /// <summary>
+    /// 通过队伍Id获取队伍对象
+    /// </summary>
+    /// <param name="invite">队伍邀请码</param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    public Task<Team?> GetTeamByInviteToken(string invite, CancellationToken token = default);
 
     /// <summary>
     /// 通过用户获取队伍对象，含队员信息

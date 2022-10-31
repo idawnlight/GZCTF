@@ -474,6 +474,22 @@ public class AccountController : ControllerBase
 
         return Ok(ProfileUserInfoModel.FromUserInfo(user));
     }
+    
+    /// <summary>
+    /// 获取用户信息接口
+    /// </summary>
+    /// <remarks>
+    /// 使用此接口根据 user id 获取用户信息
+    /// </remarks>
+    /// <response code="200">用户成功获取信息</response>
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(ProfileUserInfoModel), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Id(string id)
+    {
+        var user = await userManager.FindByIdAsync(id);
+
+        return Ok(ProfileUserInfoModel.FromUserInfo(user));
+    }
 
     /// <summary>
     /// 更新用户头像接口
